@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>🔥 Math Battle Ultimate</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: sans-serif;
+    background: linear-gradient(135deg, #141e30, #243b55);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    transition: filter 0.3s;
+}
+
+.card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    padding: 30px;
+    border-radius: 25px;
+    width: 400px;
+    text-align: center;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+}
+
+h1 {
+    margin-top: 0;
+}
+
+input, select {
+    width: 85%;
+    padding: 12px;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    text-align: center;
+    margin-top: 10px;
+    box-sizing: border-box;
+}
+
+button {
+    margin-top: 15px;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 12px;
+    background: #00c6ff;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+button:hover {
+    transform: scale(1.05);
+}
+
+#soal {
+    font-size: 22px;
+    margin: 20px 0;
+    line-height: 1.4;
+}
+
+#hasil {
+    margin-top: 20px;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+#penjelasan {
+    margin-top: 10px;
+    line-height: 1.5;
+}
+
+#score {
+    margin-top: 15px;
+    color: #ffd700;
+    font-size: 18px;
+}
+
+#timer {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+#rank {
+    font-size: 18px;
+    color: #00ffcc;
+    margin-bottom: 15px;
+}
+
+#game,
+#pilihanGame,
+#timer,
+#rank,
+#btnLeaderboard,
+#leaderboard {
+    display: none;
+}
+
+#btnLeaderboard {
+    background: #ffd700;
+    color: #141e30;
+    font-weight: bold;
+}
+
+#leaderboard {
+    margin-top: 25px;
+    text-align: left;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 15px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#leaderboardList {
+    padding-left: 20px;
+    margin: 5px 0 0 0;
+}
+
+label {
+    display: block;
+    margin-top: 15px;
+    font-size: 14px;
+    color: #bbb;
+    text-align: left;
+    margin-left: 35px;
+}
+
+/* ANIMASI EFFECT */
+@keyframes shake {
+    0% { transform: translate(0,0); }
+    25% { transform: translate(3px,3px); }
+    50% { transform: translate(-3px,3px); }
+    75% { transform: translate(3px,-3px); }
+    100% { transform: translate(0,0); }
+}
+
+.shake {
+    animation: shake 0.3s;
+}
+
+@keyframes glow {
+    0% { box-shadow: 0 0 5px gold; }
+    50% { box-shadow: 0 0 25px gold; }
+    100% { box-shadow: 0 0 5px gold; }
+}
+
+.glow {
+    animation: glow 0.6s ease;
+}
+
+#streakPopup {
+    position: fixed;
+    top: 18%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.85);
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-size: 22px;
+    color: gold;
+    display: none;
+    z-index: 999;
+    font-weight: bold;
+    border: 2px solid gold;
+}
+
+#screenFlash {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    background: red;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 998;
+    transition: opacity 0.1s ease;
+}
+</style>
+</head>
+
+<body>
+
+<div id="streakPopup"></div>
+<div id="screenFlash"></div>
+
+<div class="card" id="mainCard">
+    <div id="timer">⏰ 30</div>
+    <div id="rank">Rank: Pemula 🗿</div>
+
+    <audio id="benarSound"><source src="https://www.soundjay.com/buttons/sounds/button-09.mp3" type="audio/mpeg"></audio>
+    <audio id="salahSound"><source src="https://www.soundjay.com/buttons/sounds/button-10.mp3" type="audio/mpeg"></audio>
+    <audio id="comboSound"><source src="https://www.soundjay.com/buttons/sounds/button-09.mp3" type="audio/mpeg"></audio>
+    <audio id="unstoppableSound"><source src="https://www.soundjay.com/buttons/sounds/button-03.mp3" type="audio/mpeg"></audio>
+
+    <div id="login">
+        <h1>🔥 Math Battle</h1>
+        <p>Masukin nama dulu wak 😑</p>
+        <input type="text" id="nama" placeholder="Nama lu">
+        <br>
+        <button onclick="lanjutMode()">Lanjut</button>
+    </div>
+
+    <div id="pilihanGame">
+        <h1>🎮 Atur Game</h1>
+        
+        <label>Pilih Kategori Soal:</label>
+        <select id="mode">
+            <option value="campuran">🎲 Campuran (Semua Ada)</option>
+            <option value="aljabar">📘 Aljabar Dasar</option>
+            <option value="linear">📗 Persamaan Linear</option>
+            <option value="rotasi">🔄 Rotasi Geometri</option>
+            <option value="perkalian">✖️ Perkalian Cepat</option>
+            <option value="aritmatika">💰 Aritmatika Sosial</option>
+            <option value="statistika">📊 Statistika (Mean/Med/Mod)</option>
+            <option value="geometri">📐 Geometri & Pythagoras</option>
+            <option value="pangkat">⚡ Pangkat & Akar</option>
+        </select>
+
+        <label>Tingkat Kesulitan:</label>
+        <select id="difficulty">
+            <option value="easy">🟢 Easy</option>
+            <option value="medium">🟡 Medium</option>
+            <option value="hard">🔴 Hard</option>
+        </select>
+
+        <label>Jumlah Soal:</label>
+        <select id="jumlahSoalPilihan">
+            <option value="10">🔢 10 Soal</option>
+            <option value="20">🔢 20 Soal</option>
+            <option value="30">🔢 30 Soal</option>
+            <option value="50">🔢 50 Soal</option>
+            <option value="100">💯 100 Soal (Raja MTK)</option>
+        </select>
+        <br>
+        <button onclick="masukGame()">Main Now 🔥</button>
+    </div>
+
+    <div id="game">
+        <h1>🧠 Battle Mode</h1>
+        <p id="welcome"></p>
+        <div id="soal"></div>
+        
+        <input type="text" id="jawaban" placeholder="Masukin jawaban">
+        <br>
+        <button onclick="cekJawaban()">Jawab</button>
+        <div id="hasil"></div>
+        <div id="penjelasan"></div>
+        <div id="score">Score: 0</div>
+        
+        <button id="btnLeaderboard" onclick="bukaLeaderboard()">🏆 Papan Peringkat</button>
+
+        <div id="leaderboard">
+            <h3 id="leaderboardTitle">🏆 Top 5 Global</h3>
+            <ol id="leaderboardList"></ol>
+        </div>
+    </div>
+</div>
+
+<script>
+let namaPlayer = "";
+let jawabanBenar; 
+let score = 0;
+let tipeSoal;
+let infoPembahasan = ""; 
+
+let nomorSoal = 1;
+let benar = 0;
+let salah = 0;
+let maxSoal = 10; 
+
+let waktu = 30;
+let timer;
+let streak = 0;
+let highscoreKey = "highscore_10"; 
+
+let comboSound = document.getElementById("comboSound");
+let unstoppableSound = document.getElementById("unstoppableSound");
+
+function lanjutMode(){
+    let nama = document.getElementById("nama").value.trim();
+    if(nama == ""){
+        alert("Nama jangan kosong njir 😑");
+        return;
+    }
+    document.getElementById("login").style.display = "none";
+    document.getElementById("pilihanGame").style.display = "block";
+}
+
+function masukGame(){
+    namaPlayer = document.getElementById("nama").value.trim();
+    maxSoal = parseInt(document.getElementById("jumlahSoalPilihan").value);
+    
+    highscoreKey = "highscore_" + maxSoal;
+    let currentHighscore = localStorage.getItem(highscoreKey) || 0;
+
+    document.getElementById("pilihanGame").style.display = "none";
+    document.getElementById("game").style.display = "block";
+    
+    document.getElementById("timer").style.display = "block";
+    document.getElementById("rank").style.display = "block";
+
+    document.getElementById("welcome").innerHTML = "Player: " + namaPlayer + ` | Mode: ${maxSoal} Soal`;
+    document.getElementById("score").innerHTML = "Score: 0 | Highscore: " + currentHighscore;
+    
+    buatSoal();
+}
+
+function mulaiTimer(){
+    clearInterval(timer);
+    waktu = 30;
+    document.getElementById("timer").innerHTML = "⏰ " + waktu;
+
+    timer = setInterval(function(){
+        waktu--;
+        document.getElementById("timer").innerHTML = "⏰ " + waktu;
+
+        if(waktu <= 0){
+            clearInterval(timer);
+            salah++;
+            nomorSoal++;
+            streak = 0;
+            document.getElementById("streakPopup").style.display = "none";
+            document.getElementById("hasil").innerHTML = "💀 Waktu habis njir";
+            document.getElementById("penjelasan").innerHTML = "Mikirnya kelamaan hiks 😭";
+            
+            let salahAudio = document.getElementById("salahSound");
+            if(salahAudio) salahAudio.play();
+
+            setTimeout(buatSoal, 1500);
+        }
+    }, 1000);
+}
+
+function selesaiGame(){
+    clearInterval(timer);
+    updateLeaderboard(); 
+
+    document.getElementById("timer").style.display = "none";
+    document.getElementById("streakPopup").style.display = "none";
+
+    let totalMaksSkor = maxSoal * 10;
+    let rasioSkor = (score / totalMaksSkor) * 100;
+    let pesan = "";
+
+    if(rasioSkor === 100) pesan = "🏆 PERFECT! Lu bantai matematika sampai ke akarnya! 🔥";
+    else if(rasioSkor >= 75) pesan = "😎 Keren wak! Otak lu berfungsi sangat maksimal.";
+    else if(rasioSkor >= 40) pesan = "🗿 Skor lu nanggung banget, mending belajar lagi.";
+    else pesan = "💀 Parah abis, MTK menangis melihat hasil kerjaan lu 😭";
+
+    let currentHighscore = localStorage.getItem(highscoreKey) || 0;
+    if(score > currentHighscore) {
+        localStorage.setItem(highscoreKey, score);
+    }
+
+    document.getElementById("soal").innerHTML = "🎉 BATTLE SELESAI";
+    document.getElementById("hasil").innerHTML = "🔥 Hasil Akhir Kategori " + maxSoal + " Soal";
+    document.getElementById("penjelasan").innerHTML = 
+        "✅ Benar: " + benar +
+        "<br>❌ Salah: " + salah +
+        "<br>🏆 Total Score: " + score + "/" + totalMaksSkor +
+        "<br><br>" + pesan;
+
+    document.getElementById("jawaban").style.display = "none";
+    document.querySelector("#game button").style.display = "none"; 
+
+    document.getElementById("btnLeaderboard").style.display = "inline-block";
+}
+
+function bukaLeaderboard(){
+    let lbArea = document.getElementById("leaderboard");
+    if(lbArea.style.display === "block") {
+        lbArea.style.display = "none";
+    } else {
+        lbArea.style.display = "block";
+        showLeaderboard(); 
+    }
+}
+
+function buatSoal(){
+    if(nomorSoal > maxSoal){
+        selesaiGame();
+        return;
+    }
+
+    document.getElementById("mainCard").classList.remove("glow");
+    document.getElementById("hasil").innerHTML = "";
+    document.getElementById("penjelasan").innerHTML = "";
+    document.getElementById("jawaban").value = "";
+    
+    let inputJawaban = document.getElementById("jawaban");
+    inputJawaban.focus();
+
+    mulaiTimer();
+
+    let mode = document.getElementById("mode").value;
+    let difficulty = document.getElementById("difficulty").value;
+    let range;
+
+    if(difficulty == "easy") range = 10;
+    else if(difficulty == "medium") range = 25;
+    else range = 50;
+
+    let listKategori = ["aljabar", "perkalian", "linear", "rotasi", "aritmatika", "statistika", "geometri", "pangkat"];
+    if(mode == "campuran"){
+        tipeSoal = listKategori[Math.floor(Math.random() * listKategori.length)];
+    } else {
+        tipeSoal = mode;
+    }
+
+    if(tipeSoal == "rotasi") {
+        inputJawaban.placeholder = "Format: (x,y) tanpa spasi";
+    } else {
+        inputJawaban.placeholder = "Masukin angka jawaban";
+    }
+
+    // === GENERATOR BANK SOAL BERAGAM ===
+    if(tipeSoal == "aljabar"){
+        let x = Math.floor(Math.random()*range)+2;
+        let hasil = (4*x)-9;
+        document.getElementById("soal").innerHTML = `📋 Soal ${nomorSoal}/${maxSoal}<br><br>📘 Tentukan nilai x dari:<br><b>4x - 9 = ${hasil}</b>`;
+        jawabanBenar = x;
+        infoPembahasan = "Pindahkan -9 ke kanan jadi positif, lalu bagi hasilnya dengan 4.";
+    }
+    else if(tipeSoal == "perkalian"){
+        let a = Math.floor(Math.random()*range)+2;
+        let b = Math.floor(Math.random()*11)+2;
+        document.getElementById("soal").innerHTML = `📋 Soal ${nomorSoal}/${maxSoal}<br><br>✖️ Hitung perkalian:<br><b>${a} × ${b}</b>`;
+        jawabanBenar = a * b;
+        infoPembahasan = "Dihitung pakai perkalian susun biasa wak.";
+    }
+    else if(tipeSoal == "linear"){
+        let x = Math.floor(Math.random()*range)+1;
+        let hasil = 3 * (2 * x + 4);
+        document.getElementById("soal").innerHTML = `📋 Soal ${nomorSoal}/${maxSoal}<br><br>📗 Cari nilai x:<br><b>3(2x + 4) = ${hasil}</b>`;
+        jawabanBenar = x;
+        infoPembahasan = "Bagi kedua ruas dengan 3, kurangi 4, lalu bagi 2.";
+    }
+    else if(tipeSoal == "rotasi"){
+        let x = Math.floor(Math.random()*9) + 2;
+        let y = Math.floor(Math.random()*9) + 2;
+        if(Math.random() > 0.5) x = -x;
+        if(Math.random() > 0.5) y = -y;
+
+        let sudutPilihan = [90, 180, 270];
+        let sudut = sudutPilihan[Math.floor(Math.random() * sudutPilihan.length)];
+        document.getElementById("soal").innerHTML = `📋 Soal ${nomorSoal}/${maxSoal}<br><br>🔄 Koordinat titik A(${x},${y}) dirotasi [O, ${sudut}°].<br>Berapakah titik bayangan baru A'?`;
+        
+        if(sudut === 90) {
+            jawabanBenar = `(${-y},${x})`;
+            infoPembahasan = "Rumus rotasi 90°: (x, y) → (-y, x)";
+        } else if(sudut === 180) {
+            jawabanBenar = `(${-x},${-y})`;
+            infoPembahasan = "Rumus rotasi 180°: (x, y) → (-x, -y)";
+        } else {
+            jawabanBenar = `(${y},${-x})`;
+            infoPembahasan = "Rumus rotasi 270°: (x, y) → (y, -x)";
+        }
+    }
+    else if(tipeSoal == "aritmatika"){
+        let hargaAwal = (Math.floor(Math.random()*5)+1) * 20000;
+        let diskon = Math.random() > 0.5 ? 10 : 20; 
+        let potongan = (hargaAwal * diskon) / 100;
+        jawabanBenar = hargaAwal - potongan;
+        document.getElementById("soal").innerHTML = `📋 Soal ${nomorSoal}/${maxSoal}<br><br>💰 Sepatu seharga <b>Rp ${hargaAwal}</b> dapet diskon sebesar <b>${diskon}%</b>.<br>Berapa harga yang harus dibayar?`;
+        infoPembahasan = `Potongan diskon = ${diskon}% dari total harga. Lalu kurangi harga awal dengan besar potongan harganya.`;
+    }
+    else if(tipeSoal == "statistika"){
+        let n1 = Math.floor(Math.random()*5)+2;
+        let n2 = Math.floor(Math.random()*5)+4;
+        let n3 = Math.floor(Math.random()*5)+6;
+        let n4 = Math.floor(Math.random()*5)+8;
+        let total = n1 + n2 + n3 + n4;
+        
+        while(total % 4 !== 0) {
+            n1++;
+            total = n1 + n2 + n3 + n4;
+        }
+        jawabanBenar = total / 4;
+        document.getElementById("soal").innerHTML = `📋 Soal ${nomorSoal}/${maxSoal}<br><br>📊 Hitung nilai rata-rata (Mean) dari data angka berikut:<br><b>${n1}, ${n2}, ${n3}, ${n4}</b>`;
+        infoPembahasan = "Jumlahkan seluruh data angka tersebut lalu bagi dengan total banyak data (yaitu dibagi 4).";
+    }
+    else if(tipeSoal == "geometri"){
+        let kelipatan = Math.floor(Math.random()*4)+1;
+        let alas = 3 * kelipatan;
+        let tinggi = 4 * kelipatan;
+        jawabanBenar = 5 * kelipatan;
+        document.getElementById("soal").innerHTML = `📋 Soal ${nomorSoal}/${maxSoal}<br><br>📐 Segitiga siku-siku memiliki panjang alas <b>${alas} cm</b> dan tinggi <b>${tinggi} cm</b>.<br>Berapa panjang sisi miringnya (Hypotenusa)?`;
+        infoPembahasan = "Gunakan dalil rumus Pythagoras: c = √(a² + b²).";
+    }
+    else if(tipeSoal == "pangkat"){
+        let angka = Math.floor(Math.random()*8)+5;
+        jawabanBenar = angka * angka;
+        document.getElementById("soal").innerHTML = `📋 Soal ${nomorSoal}/${maxSoal}<br><br>⚡ Hitunglah hasil kuadrat dari:<br><b>${angka}²</b>`;
+        infoPembahasan = `Perpangkatan dua artinya perkalian berulang angka itu sendiri: ${angka} dikali ${angka}.`;
+    }
+}
+
+function showStreakEffect(){
+    let popup = document.getElementById("streakPopup");
+    let flash = document.getElementById("screenFlash");
+
+    if(streak >= 3){
+        popup.style.display = "block";
+        popup.innerHTML = `🔥 KILL STREAK x${streak}`;
+        popup.style.animation = "none";
+        popup.offsetHeight; 
+        popup.style.animation = "glow 0.6s ease";
+        if(comboSound) { comboSound.currentTime = 0; comboSound.play(); }
+    }
+    if(streak >= 5){
+        document.querySelector(".card")?.classList.add("glow");
+        if(unstoppableSound) { unstoppableSound.currentTime = 0; unstoppableSound.play(); }
+        flash.style.opacity = 0.3;
+        setTimeout(() => { flash.style.opacity = 0; }, 200);
+    }
+    if(streak >= 8){
+        popup.innerHTML = `💀 UNSTOPPABLE x${streak}`;
+        flash.style.opacity = 0.5;
+        document.body.style.filter = "hue-rotate(180deg)";
+        setTimeout(() => { document.body.style.filter = "none"; flash.style.opacity = 0; }, 400);
+    }
+    setTimeout(() => { popup.style.display = "none"; }, 1200);
+}
+
+function cekJawaban(){
+    clearInterval(timer);
+    let jawabanInput = document.getElementById("jawaban").value.trim();
+
+    if(jawabanInput === "") {
+        alert("Isi dulu jawabannya wak!");
+        mulaiTimer();
+        return;
+    }
+
+    let isBenar = false;
+    if(tipeSoal == "rotasi") {
+        let inputBersih = jawabanInput.replace(/\s+/g, '');
+        isBenar = (inputBersih === jawabanBenar);
+    } else {
+        isBenar = (parseInt(jawabanInput) === jawabanBenar);
+    }
+
+    if(isBenar){
+        let benarAudio = document.getElementById("benarSound");
+        if(benarAudio) benarAudio.play();
+        benar++;
+        streak++;
+        score += 10;
+        document.getElementById("hasil").innerHTML = streak >= 3 ? "🔥 COMBO x" + streak : "🔥 BENERRR";
+        showStreakEffect();
+        document.getElementById("penjelasan").innerHTML = "Mantap djiwa 😎";
+    } 
+    else {
+        let salahAudio = document.getElementById("salahSound");
+        if(salahAudio) salahAudio.play();
+        streak = 0;
+        document.getElementById("streakPopup").style.display = "none";
+        salah++;
+
+        let card = document.getElementById("mainCard");
+        if(card){
+            card.classList.add("shake");
+            setTimeout(() => { card.classList.remove("shake"); }, 300);
+        }
+
+        document.getElementById("hasil").innerHTML = "❌ Salah 😭";
+        document.getElementById("penjelasan").innerHTML = 
+            `❌ Jawaban benar: <b>${jawabanBenar}</b><br><br>📖 Pembahasan:<br>${infoPembahasan}`;
+    }
+
+    let totalSkorMaksimal = maxSoal * 10;
+    document.getElementById("score").innerHTML = `Score: ${score} | Highscore Kategori: ` + (localStorage.getItem(highscoreKey) || 0);
+    nomorSoal++;
+    setTimeout(buatSoal, 2500); 
+}
+
+function updateLeaderboard(){
+    let lbKey = "leaderboard_" + maxSoal;
+    let data = JSON.parse(localStorage.getItem(lbKey)) || [];
+    
+    if(score > 0 || data.length < 5){
+        data.push({ nama: namaPlayer, score: score });
+    }
+    data.sort((a,b) => b.score - a.score);
+    data = data.slice(0,5);
+    localStorage.setItem(lbKey, JSON.stringify(data));
+}
+
+function showLeaderboard(){
+    let lbKey = "leaderboard_" + maxSoal;
+    let data = JSON.parse(localStorage.getItem(lbKey)) || [];
+    let list = document.getElementById("leaderboardList");
+    document.getElementById("leaderboardTitle").innerText = `🏆 Top 5 Kategori ${maxSoal} Soal`;
+    list.innerHTML = "";
+    
+    if(data.length === 0){
+        list.innerHTML = "<li>Belum ada rekam data peringkat wak.</li>";
+        return;
+    }
+
+    data.forEach((item) => {
+        let li = document.createElement("li");
+        li.innerHTML = `<b>${item.nama}</b> — ${item.score} Pts`;
+        list.appendChild(li);
+    });
+}
+</script>
+
+</body>
+</html>
